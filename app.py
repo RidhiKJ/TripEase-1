@@ -4,13 +4,14 @@ import os
 import requests
 from dotenv import load_dotenv
 from flask_cors import CORS
+import google.generativeai as genai
 
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)  # Allows frontend to access backend from different origin
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = os.getenv("GOOGLE_API_KEY")
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 
 def get_weather(city):
