@@ -55,7 +55,7 @@ model VerificationToken {
 }
 
 model Trip {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
   description String?
   origin      String?
@@ -65,8 +65,8 @@ model Trip {
   budget      String?
   interests   String[]
   itinerary   Json?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

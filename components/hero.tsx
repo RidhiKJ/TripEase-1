@@ -25,8 +25,8 @@ export function Hero() {
             </p>
           </div>
           <div className="space-x-4">
-            <Button size="lg" className="px-8">
-              Start Planning
+            <Button size="lg" className="px-8" asChild>
+              <a href="/plan-trip">Start Planning</a>
             </Button>
             <Button variant="outline" size="lg">
               Learn More

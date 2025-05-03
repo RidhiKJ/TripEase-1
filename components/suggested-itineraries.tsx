@@ -98,14 +98,18 @@ export function SuggestedItineraries() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button className="w-full">View Plan</Button>
+                <Button className="w-full" asChild>
+                  <a href="/plan-trip">View Plan</a>
+                </Button>
               </CardFooter>
             </Card>
           ))}
         </div>
 
         <div className="mt-8 flex justify-center">
-          <Button variant="outline">View More Itineraries</Button>
+          <Button variant="outline" asChild>
+            <a href="/plan-trip">View More Itineraries</a>
+          </Button>
         </div>
       </div>
     </section>
