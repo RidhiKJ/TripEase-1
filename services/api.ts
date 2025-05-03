@@ -13,7 +13,10 @@ export interface ItineraryResponse {
 
 export async function generateItinerary(data: ItineraryRequest): Promise<ItineraryResponse> {
   try {
-    const response = await fetch("http://localhost:5000/generate-itinerary", {
+    // For production, we should use a relative URL or environment variable
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/generate-itinerary"
+
+    const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
