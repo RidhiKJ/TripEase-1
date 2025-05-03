@@ -1,16 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  swcMinify: true,
-  experimental: {
-    serverComponentsExternalPackages: ["@prisma/client", "bcryptjs"],
-  },
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.externals.push("@prisma/client");
-    }
-    return config;
-  },
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -20,6 +9,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig

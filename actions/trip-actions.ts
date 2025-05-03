@@ -1,8 +1,10 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
+import { PrismaClient } from "@prisma/client"
 import { auth } from "@/auth"
-import prisma from "@/lib/prisma"
+
+const prisma = new PrismaClient()
 
 export async function saveTrip(formData: FormData) {
   const session = await auth()
