@@ -1,4 +1,4 @@
-// API service for interacting with the Flask backend
+// API service for interacting with the backend
 
 export interface ItineraryRequest {
   destination: string
@@ -13,8 +13,8 @@ export interface ItineraryResponse {
 
 export async function generateItinerary(data: ItineraryRequest): Promise<ItineraryResponse> {
   try {
-    // For production, we should use a relative URL or environment variable
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/generate-itinerary"
+    // Use the Next.js API route
+    const apiUrl = "/api/generate-itinerary"
 
     const response = await fetch(apiUrl, {
       method: "POST",
@@ -33,11 +33,9 @@ export async function generateItinerary(data: ItineraryRequest): Promise<Itinera
   } catch (error) {
     console.error("Error generating itinerary:", error)
 
-    // If the server is not running, provide a mock response for development
-    if ((error as Error).message.includes("Failed to fetch")) {
-      console.warn("Server not running, using mock data")
-      return {
-        itinerary: `# ${data.destination} Itinerary
+    // Fallback response if the API call fails
+    return {
+      itinerary: `# ${data.destination} Itinerary
 
 Day 1: Arrival and Orientation
 - Arrive at ${data.destination} International Airport
@@ -62,9 +60,6 @@ Travel Tips:
 - Transportation: Public transit is recommended
 - Weather: Pack accordingly for the season
 - Local customs: Research local etiquette before your trip`,
-      }
     }
-
-    throw error
   }
 }

@@ -3,17 +3,10 @@ import { NextResponse } from "next/server"
 export async function POST(request: Request) {
   try {
     const data = await request.json()
+    const { destination, duration, budget, interests } = data
 
-    // In production, we would use an environment variable for the Flask API URL
-    const flaskApiUrl = process.env.FLASK_API_URL || "http://localhost:5000/generate-itinerary"
-
-    // If we're in a serverless environment where we can't connect to localhost,
-    // return mock data instead
-    if (process.env.NODE_ENV === "production" && !process.env.FLASK_API_URL) {
-      const { destination, duration, budget, interests } = data
-
-      return NextResponse.json({
-        itinerary: `# ${destination} Itinerary
+    // Generate a simple itinerary without relying on external APIs
+    const itinerary = `# ${destination} Itinerary
 
 Day 1: Arrival and Orientation
 - Arrive at ${destination} International Airport
@@ -37,26 +30,9 @@ Travel Tips:
 - Local currency: Check exchange rates before arrival
 - Transportation: Public transit is recommended
 - Weather: Pack accordingly for the season
-- Local customs: Research local etiquette before your trip`,
-      })
-    }
+- Local customs: Research local etiquette before your trip`
 
-    // Forward the request to the Flask backend
-    const response = await fetch(flaskApiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json()
-      return NextResponse.json(errorData, { status: response.status })
-    }
-
-    const result = await response.json()
-    return NextResponse.json(result)
+    return NextResponse.json({ itinerary })
   } catch (error) {
     console.error("Error generating itinerary:", error)
     return NextResponse.json({ error: "Failed to generate itinerary" }, { status: 500 })
