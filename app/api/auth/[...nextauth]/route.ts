@@ -1,4 +1,4 @@
-#import { handler } from "@/auth"
+import { handler } from "@/auth"
 import { getServerSession } from "next-auth";
 
 export const GET = handler.GET

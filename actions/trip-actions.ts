@@ -1,8 +1,8 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { getServerSession } from "next-auth";
-#import { auth } from "@/auth"
+#import { getServerSession } from "next-auth";
+import { auth } from "@/auth"
 import prisma from "@/lib/prisma"
 
 export async function saveTrip(formData: FormData) {
