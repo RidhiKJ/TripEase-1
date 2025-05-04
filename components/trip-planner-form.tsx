@@ -14,15 +14,12 @@ import {
   Bed,
   Camera,
 } from "lucide-react"
-import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
@@ -74,8 +71,8 @@ export function TripPlannerForm() {
   // Travel Details
   const [origin, setOrigin] = useState("")
   const [destination, setDestination] = useState("")
-  const [startDate, setStartDate] = useState<Date>()
-  const [endDate, setEndDate] = useState<Date>()
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
 
   // Preferences
   const [budget, setBudget] = useState<string>("medium")
@@ -132,7 +129,9 @@ export function TripPlannerForm() {
 
   const calculateDuration = () => {
     if (!startDate || !endDate) return "0"
-    const diffTime = Math.abs(endDate.getTime() - startDate.getTime())
+    const start = new Date(startDate)
+    const end = new Date(endDate)
+    const diffTime = Math.abs(end.getTime() - start.getTime())
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     return diffDays.toString()
   }
@@ -402,61 +401,31 @@ export function TripPlannerForm() {
                         <Label htmlFor="start-date" className="text-base">
                           Start Date
                         </Label>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button
-                              id="start-date"
-                              variant="outline"
-                              className={cn(
-                                "w-full justify-start text-left font-normal py-6 text-base border-ocean-200",
-                                !startDate && "text-muted-foreground",
-                              )}
-                            >
-                              <CalendarIcon className="mr-2 h-5 w-5 text-ocean-500" />
-                              {startDate ? format(startDate, "PPP") : "Select date"}
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0">
-                            <Calendar
-                              mode="single"
-                              selected={startDate}
-                              onSelect={setStartDate}
-                              initialFocus
-                              disabled={(date) => date < new Date()}
-                              className="border-ocean-200"
-                            />
-                          </PopoverContent>
-                        </Popover>
+                        <div className="relative">
+                          <CalendarIcon className="absolute left-3 top-3 h-5 w-5 text-ocean-500" />
+                          <Input
+                            id="start-date"
+                            type="date"
+                            className="pl-10 py-6 text-base border-ocean-200 focus-visible:ring-ocean-500"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                          />
+                        </div>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="end-date" className="text-base">
                           End Date
                         </Label>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button
-                              id="end-date"
-                              variant="outline"
-                              className={cn(
-                                "w-full justify-start text-left font-normal py-6 text-base border-sunset-200",
-                                !endDate && "text-muted-foreground",
-                              )}
-                            >
-                              <CalendarIcon className="mr-2 h-5 w-5 text-sunset-500" />
-                              {endDate ? format(endDate, "PPP") : "Select date"}
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0">
-                            <Calendar
-                              mode="single"
-                              selected={endDate}
-                              onSelect={setEndDate}
-                              initialFocus
-                              disabled={(date) => date < (startDate || new Date())}
-                              className="border-sunset-200"
-                            />
-                          </PopoverContent>
-                        </Popover>
+                        <div className="relative">
+                          <CalendarIcon className="absolute left-3 top-3 h-5 w-5 text-sunset-500" />
+                          <Input
+                            id="end-date"
+                            type="date"
+                            className="pl-10 py-6 text-base border-sunset-200 focus-visible:ring-sunset-500"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -676,7 +645,9 @@ export function TripPlannerForm() {
                         <CardDescription className="text-base">
                           {startDate &&
                             endDate &&
-                            `${format(startDate, "MMM d")} - ${format(endDate, "MMM d, yyyy")} • `}
+                            `${new Date(startDate).toLocaleDateString()} - ${new Date(
+                              endDate,
+                            ).toLocaleDateString()} • `}
                           {budget === "low" && "Budget-Friendly"}
                           {budget === "medium" && "Moderately Priced"}
                           {budget === "high" && "Luxury Experience"}
