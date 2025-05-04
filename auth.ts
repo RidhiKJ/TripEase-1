@@ -1,3 +1,4 @@
+import NextAuth from "next-auth";
 import { getServerSession } from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import GithubProvider from "next-auth/providers/github";
@@ -62,5 +63,4 @@ export function auth() {
   return getServerSession(authOptions);
 }
 // Add this at the bottom of auth.ts
-import NextAuth from "next-auth"
 export const handler = NextAuth(authOptions)
