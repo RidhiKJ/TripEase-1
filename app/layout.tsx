@@ -1,13 +1,9 @@
 import type React from "react"
-import "@/app/globals.css"
-import { Inter } from "next/font/google"
-import { ThemeProvider } from "@/components/theme-provider"
-
-const inter = Inter({ subsets: ["latin"] })
+import "./globals.css"
 
 export const metadata = {
-  title: "TravelAI - AI-Powered Travel Planning",
-  description: "Plan your perfect trip with AI-powered recommendations tailored to your preferences and budget.",
+  title: "Travel Planner",
+  description: "Plan your perfect trip with our AI-powered travel planner",
     generator: 'v0.dev'
 }
 
@@ -17,12 +13,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          {children}
-        </ThemeProvider>
-      </body>
+    <html lang="en">
+      <body>{children}</body>
     </html>
   )
 }
