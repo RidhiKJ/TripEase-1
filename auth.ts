@@ -1,23 +1,21 @@
-import NextAuth from "next-auth";
 import { getServerSession } from "next-auth";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import prisma from "./lib/prisma";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import prisma from "@/lib/prisma";
 
-// Configure NextAuth
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GithubProvider({
-      clientId: process.env.GITHUB_ID as string,
-      clientSecret: process.env.GITHUB_SECRET as string,
+      clientId: process.env.GITHUB_ID!,
+      clientSecret: process.env.GITHUB_SECRET!,
     }),
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
     CredentialsProvider({
       name: "Credentials",
@@ -26,53 +24,43 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null
-        }
+        if (!credentials?.email || !credentials?.password) return null;
 
         const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email,
-          },
-        })
+          where: { email: credentials.email },
+        });
 
-        if (!user || !user.password) {
-          return null
-        }
+        if (!user || !user.password) return null;
 
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
+        const isValid = await bcrypt.compare(credentials.password, user.password);
+        if (!isValid) return null;
 
-        if (!isPasswordValid) {
-          return null
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-        }
+        return { id: user.id, email: user.email, name: user.name };
       },
     }),
   ],
   callbacks: {
-    async session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id
+    async session({ session, token }) {
+      if (session.user && token.sub) {
+        session.user.id = token.sub;
       }
-      return session
+      return session;
     },
+  },
+  session: {
+    strategy: "jwt",
   },
   pages: {
     signIn: "/auth/signin",
     signUp: "/auth/signup",
   },
-  session: {
-    strategy: "jwt",
-  },
+  secret: process.env.NEXTAUTH_SECRET,
+};
+
+// Export reusable server-side auth function
+export function auth() {
+  return getServerSession(authOptions);
 }
-
-// Export handler with Node.js runtime configuration
-export default (req, res) => NextAuth(req, res, authOptions)
-
-// Disable Edge runtime for this specific API route
-export const runtime = "nodejs"  // Ensure this is set to "nodejs"
+// Add this at the bottom of auth.ts
+import NextAuth from "next-auth"
+export const handler = NextAuth(authOptions)
