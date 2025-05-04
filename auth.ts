@@ -62,5 +62,3 @@ export const authOptions = {
 export function auth() {
   return getServerSession(authOptions);
 }
-// Add this at the bottom of auth.ts
-export const handler = NextAuth(authOptions)
