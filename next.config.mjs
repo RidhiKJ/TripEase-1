@@ -1,14 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  eslint: {
-    ignoreDuringBuilds: true,
+  reactStrictMode: true, // Helps catch potential bugs
+  swcMinify: true, // Use SWC for faster builds
+  experimental: {
+    appDir: true, // If you're using the app/ directory
   },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  images: {
-    unoptimized: true,
+  webpack(config) {
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      child_process: false,
+      module: false,
+    };
+    return config;
   },
 };
 
