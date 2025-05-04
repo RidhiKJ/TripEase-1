@@ -1,6 +1,6 @@
 import NextAuth from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { handler } from "@/auth"
+import { handler } from "@/auth";
 import { getServerSession } from "next-auth"
 
 const handler = NextAuth(authOptions)
