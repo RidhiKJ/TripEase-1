@@ -2,7 +2,10 @@
 
 import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
-import prisma from "@/lib/prisma"
+
+// In-memory storage for trips (replace with database in production)
+const trips = []
+let tripIdCounter = 1
 
 export async function saveTrip(formData: FormData) {
   const session = await auth()
@@ -37,19 +40,21 @@ export async function saveTrip(formData: FormData) {
     // Parse interests into an array
     const interestsArray = interests ? interests.split(",").map((i) => i.trim()) : []
 
-    const trip = await prisma.trip.create({
-      data: {
-        title,
-        description,
-        origin,
-        destination,
-        startDate,
-        endDate,
-        budget,
-        interests: interestsArray,
-        userId: session.user.id,
-      },
-    })
+    const trip = {
+      id: String(tripIdCounter++),
+      title,
+      description,
+      origin,
+      destination,
+      startDate,
+      endDate,
+      budget,
+      interests: interestsArray,
+      userId: session.user.id,
+      createdAt: new Date(),
+    }
+
+    trips.push(trip)
 
     revalidatePath("/saved-trips")
 
@@ -73,16 +78,11 @@ export async function getUserTrips() {
   }
 
   try {
-    const trips = await prisma.trip.findMany({
-      where: {
-        userId: session.user.id,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    })
+    // Filter trips by user ID
+    const userTrips = trips.filter((trip) => trip.userId === session.user.id)
 
-    return trips
+    // Sort by creation date (newest first)
+    return userTrips.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   } catch (error) {
     console.error("Error fetching trips:", error)
     return []
@@ -100,23 +100,16 @@ export async function deleteTrip(tripId: string) {
 
   try {
     // Check if the trip belongs to the user
-    const trip = await prisma.trip.findUnique({
-      where: {
-        id: tripId,
-      },
-    })
+    const tripIndex = trips.findIndex((trip) => trip.id === tripId && trip.userId === session.user.id)
 
-    if (!trip || trip.userId !== session.user.id) {
+    if (tripIndex === -1) {
       return {
         error: "Trip not found or you don't have permission to delete it",
       }
     }
 
-    await prisma.trip.delete({
-      where: {
-        id: tripId,
-      },
-    })
+    // Remove the trip
+    trips.splice(tripIndex, 1)
 
     revalidatePath("/saved-trips")
 

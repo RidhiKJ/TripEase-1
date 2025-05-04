@@ -1,7 +1,19 @@
 "use client"
 
 import { useState } from "react"
-import { CalendarIcon, MapPin, ArrowRight, Check, Globe, Sparkles, Compass } from "lucide-react"
+import {
+  CalendarIcon,
+  MapPin,
+  ArrowRight,
+  Check,
+  Globe,
+  Sparkles,
+  Compass,
+  Utensils,
+  Coffee,
+  Bed,
+  Camera,
+} from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 
@@ -15,6 +27,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const travelTypes = [
   { id: "solo", label: "Solo", icon: "👤" },
@@ -36,6 +49,22 @@ const interestOptions = [
   { id: "sports", label: "Sports", icon: "⚽", color: "bg-ocean-100 text-ocean-700 border-ocean-200" },
 ]
 
+const accommodationOptions = [
+  { id: "hotel", label: "Hotels", icon: "🏨" },
+  { id: "hostel", label: "Hostels", icon: "🛏️" },
+  { id: "apartment", label: "Apartments", icon: "🏢" },
+  { id: "resort", label: "Resorts", icon: "🌴" },
+  { id: "camping", label: "Camping", icon: "⛺" },
+]
+
+const cuisineOptions = [
+  { id: "local", label: "Local Cuisine", icon: "🍲" },
+  { id: "street", label: "Street Food", icon: "🥘" },
+  { id: "fine", label: "Fine Dining", icon: "🍷" },
+  { id: "vegetarian", label: "Vegetarian", icon: "🥗" },
+  { id: "desserts", label: "Desserts & Sweets", icon: "🍰" },
+]
+
 export function TripPlannerForm() {
   // Form state
   const [currentStep, setCurrentStep] = useState(1)
@@ -55,6 +84,12 @@ export function TripPlannerForm() {
   // Interests
   const [selectedInterests, setSelectedInterests] = useState<string[]>([])
 
+  // Accommodations
+  const [selectedAccommodations, setSelectedAccommodations] = useState<string[]>([])
+
+  // Cuisine
+  const [selectedCuisines, setSelectedCuisines] = useState<string[]>([])
+
   const handleTravelTypeChange = (id: string) => {
     setTravelType((prev) => {
       if (prev.includes(id)) {
@@ -67,6 +102,26 @@ export function TripPlannerForm() {
 
   const handleInterestChange = (id: string) => {
     setSelectedInterests((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((item) => item !== id)
+      } else {
+        return [...prev, id]
+      }
+    })
+  }
+
+  const handleAccommodationChange = (id: string) => {
+    setSelectedAccommodations((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((item) => item !== id)
+      } else {
+        return [...prev, id]
+      }
+    })
+  }
+
+  const handleCuisineChange = (id: string) => {
+    setSelectedCuisines((prev) => {
       if (prev.includes(id)) {
         return prev.filter((item) => item !== id)
       } else {
@@ -91,39 +146,29 @@ export function TripPlannerForm() {
     setIsGenerating(true)
 
     try {
-      // Simulate API call with a timeout
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
       const duration = calculateDuration()
 
-      // Generate a mock itinerary
-      const mockItinerary = `# ${destination} Itinerary
+      const response = await fetch("/api/generate-itinerary", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          destination,
+          duration,
+          budget,
+          interests: selectedInterests,
+          accommodations: selectedAccommodations,
+          cuisines: selectedCuisines,
+        }),
+      })
 
-Day 1: Arrival and Exploration
-- Arrive at ${destination} International Airport
-- Check-in at your hotel and freshen up
-- Evening walking tour of the city center
-- Welcome dinner at a local restaurant featuring authentic cuisine
+      if (!response.ok) {
+        throw new Error("Failed to generate itinerary")
+      }
 
-Day 2: Cultural Immersion
-- Morning visit to the top historical sites and landmarks
-- Lunch at a popular local café
-- Afternoon museum or art gallery tour
-- Evening cultural performance or entertainment
-
-Day 3: Nature and Adventure
-- Morning excursion to nearby natural attractions
-- Picnic lunch with scenic views
-- Afternoon leisure activities or adventure sports
-- Farewell dinner at a highly-rated restaurant
-
-Travel Tips:
-- Local currency: Check exchange rates before arrival
-- Transportation: Public transit is convenient and affordable
-- Weather: ${destination} is lovely this time of year
-- Local customs: Respect local traditions and dress codes`
-
-      setItinerary(mockItinerary)
+      const data = await response.json()
+      setItinerary(data.itinerary)
       setCurrentStep(4) // Move to results step
     } catch (error) {
       alert("Failed to generate itinerary. Please try again.")
@@ -147,20 +192,102 @@ Travel Tips:
   }
 
   const formatItinerary = (text: string) => {
-    // Split by days or sections
-    const sections = text.split(/Day \d+:|(?:\r\n|\r|\n){2,}/).filter(Boolean)
+    // Split by sections (headers)
+    const sections = text.split(/^##\s+/m)
 
-    return sections.map((section, index) => {
-      const title = section.split(/(?:\r\n|\r|\n)/)[0].trim()
-      const content = section.substring(title.length).trim()
+    return (
+      <>
+        {/* Process the first section (days) */}
+        <div className="mb-8">
+          {sections[0].split(/Day \d+:/).map((day, index) => {
+            if (index === 0) return null // Skip the title part
 
-      return (
-        <div key={index} className="mb-6">
-          <h3 className="text-lg font-semibold mb-2">{title}</h3>
-          <p className="text-muted-foreground whitespace-pre-line">{content}</p>
+            const dayTitle = `Day ${index}:${day.split("\n")[0]}`
+            const dayContent = day.substring(day.indexOf("\n")).trim()
+
+            return (
+              <div key={index} className="mb-6">
+                <h3 className="text-lg font-semibold mb-2 text-ocean-700">{dayTitle}</h3>
+                <ul className="list-disc pl-5 space-y-1">
+                  {dayContent
+                    .split("- ")
+                    .filter(Boolean)
+                    .map((item, i) => (
+                      <li key={i} className="text-muted-foreground">
+                        {item.trim()}
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            )
+          })}
         </div>
-      )
-    })
+
+        {/* Process the remaining sections */}
+        <Tabs defaultValue="accommodations" className="w-full">
+          <TabsList className="grid grid-cols-5 mb-4">
+            <TabsTrigger value="accommodations" className="flex items-center gap-1">
+              <Bed className="h-4 w-4" /> Accommodations
+            </TabsTrigger>
+            <TabsTrigger value="attractions" className="flex items-center gap-1">
+              <Camera className="h-4 w-4" /> Attractions
+            </TabsTrigger>
+            <TabsTrigger value="cuisine" className="flex items-center gap-1">
+              <Utensils className="h-4 w-4" /> Cuisine
+            </TabsTrigger>
+            <TabsTrigger value="beverages" className="flex items-center gap-1">
+              <Coffee className="h-4 w-4" /> Beverages
+            </TabsTrigger>
+            <TabsTrigger value="transport" className="flex items-center gap-1">
+              <Globe className="h-4 w-4" /> Transport
+            </TabsTrigger>
+          </TabsList>
+
+          {sections.slice(1).map((section, index) => {
+            const sectionTitle = section.split("\n")[0].trim()
+            const sectionContent = section.substring(section.indexOf("\n")).trim()
+
+            let tabValue = "accommodations"
+            if (sectionTitle.includes("Attractions")) tabValue = "attractions"
+            else if (sectionTitle.includes("Cuisine")) tabValue = "cuisine"
+            else if (sectionTitle.includes("Beverages")) tabValue = "beverages"
+            else if (sectionTitle.includes("Getting Around")) tabValue = "transport"
+
+            return (
+              <TabsContent key={index} value={tabValue} className="border rounded-lg p-4 bg-white">
+                <h3 className="text-lg font-semibold mb-3 text-ocean-700">{sectionTitle}</h3>
+                <ul className="list-disc pl-5 space-y-1">
+                  {sectionContent
+                    .split("- ")
+                    .filter(Boolean)
+                    .map((item, i) => (
+                      <li key={i} className="text-muted-foreground">
+                        {item.trim()}
+                      </li>
+                    ))}
+                </ul>
+              </TabsContent>
+            )
+          })}
+        </Tabs>
+
+        {/* Travel Tips */}
+        <div className="mt-8 p-4 bg-ocean-50 rounded-lg">
+          <h3 className="text-lg font-semibold mb-2 text-ocean-700">Travel Tips</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            {text
+              .split("Travel Tips:")[1]
+              .split("- ")
+              .filter(Boolean)
+              .map((tip, i) => (
+                <li key={i} className="text-muted-foreground">
+                  {tip.trim()}
+                </li>
+              ))}
+          </ul>
+        </div>
+      </>
+    )
   }
 
   return (
@@ -231,7 +358,7 @@ Travel Tips:
                 <CardDescription className="text-base">
                   {currentStep === 1 && "Tell us about your destination and travel dates"}
                   {currentStep === 2 && "Help us understand your budget and travel preferences"}
-                  {currentStep === 3 && "Select activities and experiences you'd enjoy"}
+                  {currentStep === 3 && "Select activities, accommodations, and dining experiences you'd enjoy"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -424,6 +551,58 @@ Travel Tips:
                             />
                             <Label htmlFor={`interest-${interest.id}`} className="cursor-pointer flex items-center">
                               <span className="mr-2 text-xl">{interest.icon}</span> {interest.label}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <Label className="text-base">Preferred Accommodations</Label>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {accommodationOptions.map((option) => (
+                          <div
+                            key={option.id}
+                            className={`flex items-center space-x-2 p-3 rounded-lg border cursor-pointer transition-all ${
+                              selectedAccommodations.includes(option.id)
+                                ? "bg-ocean-100 text-ocean-700 border-ocean-200"
+                                : "border-muted hover:border-gray-300"
+                            }`}
+                            onClick={() => handleAccommodationChange(option.id)}
+                          >
+                            <Checkbox
+                              id={`accommodation-${option.id}`}
+                              checked={selectedAccommodations.includes(option.id)}
+                              className="data-[state=checked]:bg-transparent data-[state=checked]:text-current"
+                            />
+                            <Label htmlFor={`accommodation-${option.id}`} className="cursor-pointer flex items-center">
+                              <span className="mr-2 text-xl">{option.icon}</span> {option.label}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <Label className="text-base">Dining Preferences</Label>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {cuisineOptions.map((option) => (
+                          <div
+                            key={option.id}
+                            className={`flex items-center space-x-2 p-3 rounded-lg border cursor-pointer transition-all ${
+                              selectedCuisines.includes(option.id)
+                                ? "bg-sunset-100 text-sunset-700 border-sunset-200"
+                                : "border-muted hover:border-gray-300"
+                            }`}
+                            onClick={() => handleCuisineChange(option.id)}
+                          >
+                            <Checkbox
+                              id={`cuisine-${option.id}`}
+                              checked={selectedCuisines.includes(option.id)}
+                              className="data-[state=checked]:bg-transparent data-[state=checked]:text-current"
+                            />
+                            <Label htmlFor={`cuisine-${option.id}`} className="cursor-pointer flex items-center">
+                              <span className="mr-2 text-xl">{option.icon}</span> {option.label}
                             </Label>
                           </div>
                         ))}
