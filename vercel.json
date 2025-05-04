@@ -6,6 +6,7 @@
   "regions": ["iad1"],
   "env": {
     "NEXTAUTH_URL": "https://v0-travel-planner-web-app.vercel.app",
-    "NEXTAUTH_SECRET": "V4EpeMOa9TCXJXuEcnTv6XjDJy/Kra20Di+Ysj8ZVWM="
+    "NEXTAUTH_SECRET": "V4EpeMOa9TCXJXuEcnTv6XjDJy/Kra20Di+Ysj8ZVWM=",
+    "DATABASE_URL": "postgresql://username:password@localhost:5432/travel_planner"
   }
 }
