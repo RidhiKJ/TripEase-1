@@ -1,7 +1,6 @@
 {
-  "buildCommand": "npm run build && npx prisma generate",
-  "installCommand": "npm install",
   "buildCommand": "npm run vercel-build",
+  "installCommand": "npm install",
   "framework": "nextjs",
   "outputDirectory": ".next",
   "regions": ["iad1"],
