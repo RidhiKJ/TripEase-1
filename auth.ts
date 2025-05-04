@@ -6,7 +6,6 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import prisma from "./lib/prisma"
 
-// Configure NextAuth
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -69,6 +68,3 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     strategy: "jwt",
   },
 })
-
-// Export the handler specifically for the API route
-export const handler = handlers
