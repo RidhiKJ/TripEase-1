@@ -2,7 +2,7 @@ import NextAuth from "next-auth"
 import GithubProvider from "next-auth/providers/github"
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
-import bcrypt from "bcryptjs" // Use bcryptjs for password hashing
+import bcrypt from "bcryptjs"
 import prisma from "./lib/prisma"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 
@@ -39,7 +39,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null
         }
 
-        // Use bcryptjs to compare passwords
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
 
         if (!isPasswordValid) {
@@ -69,9 +68,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: {
     strategy: "jwt",
   },
-  // Edge runtime configuration
-  runtime: "edge",
 })
 
-// Export the handler specifically for the API route
+// Disable Edge runtime for this specific API route
 export const handler = handlers
+export const runtime = "nodejs" // Disable Edge runtime
