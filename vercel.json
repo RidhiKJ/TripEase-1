@@ -9,6 +9,6 @@
       "development": "http://localhost:3000",
       "production": "https://your-production-url.vercel.app"
     },
-    "NEXTAUTH_SECRET": "@nextauth-secret"
+    "NEXTAUTH_SECRET": "V4EpeMOa9TCXJXuEcnTv6XjDJy/Kra20Di+Ysj8ZVWM="
   }
 }
