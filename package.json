@@ -64,7 +64,6 @@
     "@prisma/client": "latest",
     "next-auth": "latest",
     "bcryptjs": "latest",
-    "argon2": "latest",
     "@next-auth/prisma-adapter": "latest"
   },
   "devDependencies": {
