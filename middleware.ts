@@ -1,31 +1,25 @@
 import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
+import { auth } from "@/auth"
 
-export function middleware(req: NextRequest) {
+export default auth((req) => {
+  const isAuthenticated = !!req.auth
   const { nextUrl } = req
   const isAuthPage = nextUrl.pathname.startsWith("/auth")
 
-  // Check the session token (depends on http/https)
-  const token =
-    req.cookies.get("next-auth.session-token")?.value ||
-    req.cookies.get("__Secure-next-auth.session-token")?.value
-
-  const isAuthenticated = !!token
-
-  // Redirect unauthenticated users trying to access protected routes
+  // If the user is not authenticated and trying to access a protected route
   if (!isAuthenticated && (nextUrl.pathname.startsWith("/saved-trips") || nextUrl.pathname.startsWith("/profile"))) {
     return NextResponse.redirect(new URL("/auth/signin", nextUrl))
   }
 
-  // Redirect authenticated users trying to access login/signup
+  // If the user is authenticated and trying to access auth pages
   if (isAuthenticated && isAuthPage) {
     return NextResponse.redirect(new URL("/", nextUrl))
   }
 
   return NextResponse.next()
-}
+})
 
-// Limit middleware to relevant paths only
+// Optionally, you can export config to match specific paths
 export const config = {
   matcher: ["/saved-trips/:path*", "/profile/:path*", "/auth/:path*"],
 }

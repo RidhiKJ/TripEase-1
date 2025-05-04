@@ -1,23 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true, // Helps catch potential bug
+  reactStrictMode: true,
+  swcMinify: true,
   eslint: {
-    ignoreDuringBuilds: true, // Ignore ESLint errors during builds
+    ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: true, // Ignore TypeScript errors during builds
+    ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true, // Allow unoptimized images
-  },
-  webpack(config) {
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      fs: false, // Disable fs module
-      child_process: false, // Disable child_process module
-      module: false, // Disable module module
-    };
-    return config;
+    unoptimized: true,
   },
 };
 
