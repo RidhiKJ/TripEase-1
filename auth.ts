@@ -7,7 +7,7 @@ import prisma from "./lib/prisma"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 
 // Configure NextAuth
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GithubProvider({
@@ -68,8 +68,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: {
     strategy: "jwt",
   },
-})
+}
+
+// Export handler with Node.js runtime configuration
+export default (req, res) => NextAuth(req, res, authOptions)
 
 // Disable Edge runtime for this specific API route
-export const handler = handlers
-export const runtime = "nodejs" // Disable Edge runtime
+export const runtime = "nodejs"  // Ensure this is set to "nodejs"
