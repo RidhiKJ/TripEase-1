@@ -2,8 +2,9 @@ import NextAuth from "next-auth"
 import GithubProvider from "next-auth/providers/github"
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
-import bcrypt from "bcryptjs"
+import argon2 from "argon2" // Use argon2 for password hashing
 import prisma from "./lib/prisma"
+import { PrismaAdapter } from "@next-auth/prisma-adapter"
 
 // Configure NextAuth
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -12,6 +13,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     GithubProvider({
       clientId: process.env.GITHUB_ID as string,
       clientSecret: process.env.GITHUB_SECRET as string,
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
     CredentialsProvider({
       name: "Credentials",
@@ -34,7 +39,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null
         }
 
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
+        // Verify password using argon2
+        const isPasswordValid = await argon2.verify(user.password, credentials.password)
 
         if (!isPasswordValid) {
           return null
@@ -63,6 +69,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: {
     strategy: "jwt",
   },
+  // Edge runtime configuration
+  runtime: "edge",
 })
 
 // Export the handler specifically for the API route

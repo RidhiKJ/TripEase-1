@@ -61,9 +61,11 @@
     "@auth/core": "latest",
     "nodemailer": "latest",
     "prisma": "latest",
-    "next-auth": "latest",
     "@prisma/client": "latest",
-    "bcryptjs": "latest"
+    "next-auth": "latest",
+    "bcryptjs": "latest",
+    "argon2": "latest",
+    "@next-auth/prisma-adapter": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",

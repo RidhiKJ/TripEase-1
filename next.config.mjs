@@ -1,10 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true, // Helps catch potential bugs
-  swcMinify: true, // Use SWC for faster builds
-  experimental: {
-    appDir: true, // If you're using the app/ directory
-  },
+  reactStrictMode: true, // Helps catch potential bug
   eslint: {
     ignoreDuringBuilds: true, // Ignore ESLint errors during builds
   },
